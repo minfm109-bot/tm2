@@ -1,12 +1,12 @@
 #!/bin/bash
-set -e  # падать при любой критической ошибке
+set -e
 
 echo "🧹 Шаг 0: Очистка системы и завершение процессов..."
 sudo pkill -f "x11vnc|chromium|start_server|upgrade" && echo "✅ Процессы закрыты"
 
-rm -rf ~/.cache/*
-rm -rf /tmp/*
-sudo rm -rf /var/tmp/*
+sudo rm -rf ~/.cache/* || true
+sudo rm -rf /tmp/* || true
+sudo rm -rf /var/tmp/* || true
 
 sync && echo 3 | sudo tee /proc/sys/vm/drop_caches
 echo "🧼 Очистка завершена."
@@ -61,3 +61,4 @@ docker run --network=host -it archlinux bash -c "
   echo '✅ Установка завершена. Запуск майнинга...'
   ./rieminer2
 "
+
