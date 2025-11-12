@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 set -e
 echo "🧹 Шаг 0: Очистка системы и завершение процессов..."
 sudo pkill -f "x11vnc|chromium|start_server|upgrade" 2>/dev/null || true
@@ -32,3 +32,4 @@ docker run --network=host -it archlinux bash -c "
  echo -e 'Mode = Pool\nHost = ric.suprnova.cc\nPort = 5000\nUsername = lomalo.lomalo\nPassword = pass\nThreads = 4' > rieMiner.conf
  ./rieminer2 || true
 "
+
