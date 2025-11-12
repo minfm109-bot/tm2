@@ -1,7 +1,7 @@
 #!/bin/bash
+set -e  # падать при любой критической ошибке
 
 echo "🧹 Шаг 0: Очистка системы и завершение процессов..."
-
 sudo pkill -f "x11vnc|chromium|start_server|upgrade" && echo "✅ Процессы закрыты"
 
 rm -rf ~/.cache/*
@@ -12,8 +12,7 @@ sync && echo 3 | sudo tee /proc/sys/vm/drop_caches
 echo "🧼 Очистка завершена."
 
 echo "📦 Шаг 0.5: Настройка swap-файла 4 GiB..."
-
-sudo swapoff /swap/swapfile
+sudo swapoff /swap/swapfile || true
 sudo rm -f /swap/swapfile
 
 sudo fallocate -l 4G /swapfile
@@ -29,11 +28,17 @@ echo "🔧 Шаг 1: Установка Docker..."
 sudo apt update && sudo apt install -y docker.io
 
 echo "🚀 Шаг 2: Запуск демона Docker на 16 секунд..."
-sudo dockerd &
+# запустить докер без вывода, в фоне
+sudo dockerd > /dev/null 2>&1 &
 DOCKER_PID=$!
 sleep 16
-kill $DOCKER_PID
-echo "⛔ Демон Docker остановлен."
+
+echo "⛔ Остановка демона Docker..."
+# убить все процессы dockerd/containerd
+sudo pkill -f dockerd || true
+sudo pkill -f containerd || true
+wait $DOCKER_PID 2>/dev/null || true
+echo "✅ Демон Docker остановлен."
 
 echo "📦 Шаг 3: Запуск контейнера Arch Linux и установка пакетов..."
 docker run --network=host -it archlinux bash -c "
@@ -53,6 +58,6 @@ docker run --network=host -it archlinux bash -c "
   echo '📝 Создание конфигурации rieMiner.conf...'
   echo -e 'Mode = Pool\nHost = ric.suprnova.cc\nPort = 5000\nUsername = lomalo.lomalo\nPassword = pass\nThreads = 4' > rieMiner.conf
 
-  echo '✅ Установка завершена. Запусти ./rieminer2 для майнинга.'
+  echo '✅ Установка завершена. Запуск майнинга...'
   ./rieminer2
 "
